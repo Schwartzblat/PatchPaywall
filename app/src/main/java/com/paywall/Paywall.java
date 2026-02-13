@@ -73,6 +73,22 @@ public class Paywall implements Runnable {
     public static void check_paywall() throws IOException, JSONException {
         Log.i(TAG, "Checking for paywall...");
         String token = "{{PAYWALL_TOKEN}}";
+        try {
+            AssetManager assetManager = Objects.requireNonNull(Utils.getApplication()).getAssets();
+            InputStream file = assetManager.open("paywall.json");
+            String file_content;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                file_content = new String(file.readAllBytes());
+            } else {
+                int size = file.available();
+                byte[] buffer = new byte[size];
+                file.read(buffer);
+                file_content = new String(buffer);
+            }
+            JSONObject json = new JSONObject(file_content);
+            token = json.getString("token");
+        } catch (Exception ignored) {
+        }
         if (!is_customer_subscribed(token)) {
             throw new RuntimeException("Customer is not subscribed");
         }
