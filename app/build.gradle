@@ -1,0 +1,53 @@
+plugins {
+    alias(libs.plugins.android.application)
+}
+
+android {
+    namespace 'com.paywall'
+    compileSdk {
+        version = release(36)
+    }
+
+    defaultConfig {
+        applicationId "com.paywall"
+        minSdk 30
+        targetSdk 36
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            shrinkResources false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    implementation libs.okhttp
+}
+
+tasks.whenTaskAdded { task ->
+    if (task.name == 'assembleRelease') {
+        task.doLast {
+            def apkDir = "$buildDir/outputs/apk/release"
+            def apkFile = fileTree(dir: apkDir, includes: ["*.apk"]).singleFile
+            def destinationDir = "./"
+
+            mkdir(destinationDir)
+            copy {
+                from apkFile
+                into "$destinationDir"
+            }
+            def output_apk = file("$destinationDir/${apkFile.name}")
+            output_apk.renameTo("${destinationDir}/smali_generator.apk")
+            println "APK moved to $destinationDir"
+        }
+    }
+}
