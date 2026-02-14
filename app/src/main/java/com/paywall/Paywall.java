@@ -30,7 +30,7 @@ public class Paywall implements Runnable {
         if (Utils.isDebuggable()) {
             SERVER_URL = "http://10.0.0.14:8000";
         } else {
-            SERVER_URL = "https://androidmod.site/";
+            SERVER_URL = "https://androidmod.site";
         }
     }
 
