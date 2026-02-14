@@ -59,6 +59,9 @@ public class Paywall implements Runnable {
                 .build();
         try {
             int response_code = client.newCall(request).execute().code();
+            if (response_code != 200) {
+                Log.w(TAG, "Subscription check failed with code: " + response_code);
+            }
             return response_code == 200;
         } catch (ConnectException | SocketTimeoutException e) {
             Log.e(TAG, "Connection error: " + e.getMessage());
