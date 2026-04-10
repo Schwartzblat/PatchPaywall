@@ -29,9 +29,6 @@ android {
     }
 }
 
-dependencies {
-    implementation libs.okhttp
-}
 
 tasks.whenTaskAdded { task ->
     if (task.name == 'assembleRelease') {
