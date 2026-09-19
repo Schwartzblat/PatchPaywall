@@ -15,3 +15,6 @@
 local.properties
 .idea
 
+
+# Build output dropped at the project root by the assembleRelease copy task.
+/smali_generator.apk

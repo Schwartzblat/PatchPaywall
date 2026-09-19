@@ -6,12 +6,29 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 
 import java.lang.reflect.Method;
-import java.util.Objects;
 
 public class Utils {
     private static Application application;
     @SuppressLint("StaticFieldLeak")
     private static Context context;
+
+    /**
+     * Seeded by {@link PaywallProvider} with the Context the framework hands the
+     * provider. The provider runs inside installContentProviders(), before the
+     * host Application's onCreate(), and that is early enough that the
+     * reflective lookup in {@link #getApplication()} can still come back null.
+     * First caller wins.
+     */
+    public static void setContext(Context value) {
+        if (value == null || context != null) {
+            return;
+        }
+        Context applicationContext = value.getApplicationContext();
+        context = applicationContext != null ? applicationContext : value;
+        if (application == null && context instanceof Application) {
+            application = (Application) context;
+        }
+    }
 
     @SuppressLint("PrivateApi")
     public static Application getApplication() {
@@ -51,6 +68,11 @@ public class Utils {
     }
 
     public static boolean isDebuggable() {
-        return (Objects.requireNonNull(getApplicationContext()).getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
+        Context applicationContext = getApplicationContext();
+        // A null context means we ran before one existed. Assume a release
+        // build rather than throwing out of Paywall's static initialiser, which
+        // would surface as an ExceptionInInitializerError inside the provider.
+        return applicationContext != null
+                && (applicationContext.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
     }
 }
