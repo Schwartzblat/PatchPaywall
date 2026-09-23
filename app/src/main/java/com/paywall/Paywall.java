@@ -20,6 +20,7 @@ import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -125,7 +126,7 @@ public class Paywall implements Runnable {
     public static boolean is_customer_subscribed(String token) {
         try {
             return post_subscription_check(build_subscription_payload(token));
-        } catch (ConnectException | SocketTimeoutException e) {
+        } catch (ConnectException | SocketTimeoutException | UnknownHostException e) {
             Log.e(TAG, "Connection error: " + e.getMessage());
             return true; // Assume subscribed if we can't connect to the server
         } catch (Exception e) {
