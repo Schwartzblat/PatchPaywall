@@ -1,7 +1,7 @@
 # Paywall
 
 Subscription check injected into a patched app by
-[Stitch](../../PycharmProjects/ApkCrawler) as an `ExternalModule`, alongside
+[Stitch](https://github.com/Schwartzblat/Stitch) as an `ExternalModule`, alongside
 each patcher's own `smali_generator`.
 
 At startup it posts the app token embedded at `assets/paywall.json` to
