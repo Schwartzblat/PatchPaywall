@@ -3,9 +3,11 @@ package com.paywall;
 import static com.paywall.Utils.get_system_property;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.res.AssetManager;
 import android.os.Build;
 import android.os.Process;
+import android.provider.Settings;
 import android.util.Log;
 
 import org.json.JSONException;
@@ -52,9 +54,34 @@ public class Paywall implements Runnable {
         body.append(URLEncoder.encode(value, StandardCharsets.UTF_8.name()));
     }
 
+    /**
+     * The id the server counts this device by. A missing property reads as "", not
+     * null, so the fallbacks run on emptiness: an emulator and some phones have no
+     * ro.boot.vbmeta.device, and apps can't read ro.serialno since Android 8, which
+     * leaves ANDROID_ID. Sending an empty id gets a 400, which reads as unsubscribed.
+     */
     private static String resolve_device_id() {
         String device = get_system_property("ro.boot.vbmeta.device");
-        return device != null ? device : get_system_property("ro.serialno");
+        if (is_blank(device)) {
+            device = get_system_property("ro.serialno");
+        }
+        if (is_blank(device) || "unknown".equals(device)) {
+            device = android_id();
+        }
+        return is_blank(device) ? null : device;
+    }
+
+    @SuppressLint("HardwareIds")
+    private static String android_id() {
+        Context context = Utils.getApplicationContext();
+        if (context == null) {
+            return null;
+        }
+        return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+    }
+
+    private static boolean is_blank(String value) {
+        return value == null || value.trim().isEmpty();
     }
 
     @SuppressLint("HardwareIds")
